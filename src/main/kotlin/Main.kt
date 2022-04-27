@@ -8,13 +8,14 @@ fun main(args: Array<String>) = runBlocking{
     println("Program arguments: ${args.joinToString()}")
 
     println("Program starts: ${Thread.currentThread().name}")
-    val job: Job = launch { // Creates a coroutine in the same thread with the underlying thread of "runBlocking" (it inherits the thread and coroutine scope of the immediate parent coroutine)
+    // We set "Unit" because we are not returning anything
+    val job: Deferred<Unit> = async { // Creates a coroutine in the same thread with the underlying thread of "runBlocking" (it inherits the thread and coroutine scope of the immediate parent coroutine)
         println("Fake work starts: ${Thread.currentThread().name}");
         mySuspendFun(1000); // Pretends doing some work... maybe file upload (Coroutine is suspended but the thread is free)
         println("Fake work ends: ${Thread.currentThread().name}");
     }
 
-    // Wait for "launch" to finish its execution
+    // Wait for "async" to finish its execution
     // after which the next statement will be executed
     job.join();
 
