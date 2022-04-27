@@ -12,17 +12,20 @@ fun main(args: Array<String>) = runBlocking{
 
     println("Program starts: ${Thread.currentThread().name}")
     val job: Job = launch(Dispatchers.Default) {
-        for (i in 0..500) {
-            if (!isActive) { // "isActive" is the boolean flag that represents cancellation status
-                // we can also use "break" for breaking the loop
-                return@launch // it used for returning into "launch" level
+        try {
+            for (i in 0..500) {
+                println("number $i")
+                /*
+                * - Actually, cancellable suspending functions that belong to "Kotlinx.coroutines"
+                *   such as yield(), delay(), etc. they throw a CancellationException
+                *   on the coroutine cancellation
+                * */
+                delay(5)
             }
-            println("number $i")
-            /*
-            * - We use Thread.sleep to avoid invoke suspending functions
-            *   that belong to "kotlinx.coroutines" package
-            */
-            Thread.sleep(1000)
+        } catch (ex: CancellationException) {
+            println("Exception caught safely")
+        } finally { // just like any other try-catch, we can also add "finally" block
+            println("Close resources in finally")
         }
     }
 
