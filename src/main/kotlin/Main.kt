@@ -11,14 +11,22 @@ fun main(args: Array<String>) = runBlocking{
     println("Program arguments: ${args.joinToString()}")
 
     println("Program starts: ${Thread.currentThread().name}")
-    val job: Job = launch {
+    val job: Job = launch(Dispatchers.Default) {
         for (i in 0..500) {
+            if (!isActive) { // "isActive" is the boolean flag that represents cancellation status
+                // we can also use "break" for breaking the loop
+                return@launch // it used for returning into "launch" level
+            }
             println("number $i")
-            delay(10)
+            /*
+            * - We use Thread.sleep to avoid invoke suspending functions
+            *   that belong to "kotlinx.coroutines" package
+            */
+            Thread.sleep(1000)
         }
     }
 
-    delay(50) // set delay for cancellation
+    delay(100) // set delay for cancellation
     // job.cancel() // cancel the coroutine after 50 milliseconds
     // job.join() // wait until the coroutine that is created by "launch" is finished or cancelled
     // Instead of use job.cancel() and job.join() separately, we can use job.cancelAndJoin()
