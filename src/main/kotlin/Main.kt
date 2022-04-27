@@ -1,4 +1,4 @@
-import kotlin.concurrent.thread
+import kotlinx.coroutines.*
 
 fun main(args: Array<String>) {
     println("Hello World!")
@@ -8,11 +8,15 @@ fun main(args: Array<String>) {
     println("Program arguments: ${args.joinToString()}")
 
     println("Program starts: ${Thread.currentThread().name}")
-    thread { // Creates a background (worker) thread
+    GlobalScope.launch { // Creates a background coroutine that run on a background
         println("Fake work starts: ${Thread.currentThread().name}");
-        Thread.sleep(1000); // Pretends doing some work... maybe file upload
+        delay(1000); // Pretends doing some work... maybe file upload (Coroutine is suspended but the thread is free)
         println("Fake work ends: ${Thread.currentThread().name}");
     }
-    // Even the last statement in the main function was executed, the application waited for our background thread to execute and complete
+    // it's a coroutine builder that block the current thread (Where it runs in the main thread then it will block the main thread)
+    runBlocking {
+        delay(2000) // wait for coroutine to finish (practically not a right way to wait)
+    }
+    // This statement will never be executed until runBlocking is finished
     println("Program ends: ${Thread.currentThread().name}")
 }
