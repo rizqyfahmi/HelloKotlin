@@ -9,16 +9,23 @@ fun main(args: Array<String>) = runBlocking{
 
     println("Program starts: ${Thread.currentThread().name}")
     // We set "Unit" because we are not returning anything
-    val job: Deferred<Unit> = async { // Creates a coroutine in the same thread with the underlying thread of "runBlocking" (it inherits the thread and coroutine scope of the immediate parent coroutine)
+    val job: Deferred<String> = async { // Creates a coroutine in the same thread with the underlying thread of "runBlocking" (it inherits the thread and coroutine scope of the immediate parent coroutine)
         println("Fake work starts: ${Thread.currentThread().name}");
         mySuspendFun(1000); // Pretends doing some work... maybe file upload (Coroutine is suspended but the thread is free)
         println("Fake work ends: ${Thread.currentThread().name}");
+        "Hello World"// return value
     }
 
-    // Wait for "async" to finish its execution
-    // after which the next statement will be executed
-    job.join();
-
+    /*
+    * - Wait for "async" to finish its execution
+    *   after which the next statement will be executed
+    * - Use join() if you don't want to use the result of async,
+    *   Otherwise you can use await() (similar to future and promise in other programming language)
+    * - Remember that join() and await() are suspended function which only can be called
+    *   from other suspend function or coroutine. In this case is "runBlocking"
+    * */
+    val result: String = job.await()
+    println("Program result: $result")
     println("Program ends: ${Thread.currentThread().name}")
 
 
