@@ -10,13 +10,17 @@ fun main(args: Array<String>) {
     println("Program starts: ${Thread.currentThread().name}")
     GlobalScope.launch { // Creates a background coroutine that run on a background
         println("Fake work starts: ${Thread.currentThread().name}");
-        delay(1000); // Pretends doing some work... maybe file upload (Coroutine is suspended but the thread is free)
+        mySuspendFun(1000); // Pretends doing some work... maybe file upload (Coroutine is suspended but the thread is free)
         println("Fake work ends: ${Thread.currentThread().name}");
     }
     // it's a coroutine builder that block the current thread (Where it runs in the main thread then it will block the main thread)
     runBlocking {
-        delay(2000) // wait for coroutine to finish (practically not a right way to wait)
+        mySuspendFun(2000) // wait for coroutine to finish (practically not a right way to wait)
     }
     // This statement will never be executed until runBlocking is finished
     println("Program ends: ${Thread.currentThread().name}")
+}
+
+suspend fun mySuspendFun(time: Long) {
+    delay(time)
 }
