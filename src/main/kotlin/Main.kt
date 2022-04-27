@@ -1,6 +1,6 @@
 import kotlinx.coroutines.*
 
-fun main(args: Array<String>) {
+fun main(args: Array<String>) = runBlocking{
     println("Hello World!")
 
     // Try adding program arguments via Run/Debug configuration.
@@ -8,17 +8,20 @@ fun main(args: Array<String>) {
     println("Program arguments: ${args.joinToString()}")
 
     println("Program starts: ${Thread.currentThread().name}")
-    GlobalScope.launch { // Creates a background coroutine that run on a background
+    val job: Job = launch { // Creates a coroutine in the same thread with the underlying thread of "runBlocking" (it inherits the thread and coroutine scope of the immediate parent coroutine)
         println("Fake work starts: ${Thread.currentThread().name}");
         mySuspendFun(1000); // Pretends doing some work... maybe file upload (Coroutine is suspended but the thread is free)
         println("Fake work ends: ${Thread.currentThread().name}");
     }
-    // it's a coroutine builder that block the current thread (Where it runs in the main thread then it will block the main thread)
-    runBlocking {
-        mySuspendFun(2000) // wait for coroutine to finish (practically not a right way to wait)
-    }
-    // This statement will never be executed until runBlocking is finished
+
+    // Wait for "launch" to finish its execution
+    // after which the next statement will be executed
+    job.join();
+
     println("Program ends: ${Thread.currentThread().name}")
+
+
+
 }
 
 suspend fun mySuspendFun(time: Long) {
