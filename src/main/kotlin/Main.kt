@@ -11,27 +11,20 @@ fun main(args: Array<String>) = runBlocking{
     println("Program arguments: ${args.joinToString()}")
 
     println("Program starts: ${Thread.currentThread().name}")
-    // We set "Unit" because we are not returning anything
-    val job: Deferred<String> = async { // Creates a coroutine in the same thread with the underlying thread of "runBlocking" (it inherits the thread and coroutine scope of the immediate parent coroutine)
-        println("Fake work starts: ${Thread.currentThread().name}");
-        mySuspendFun(1000); // Pretends doing some work... maybe file upload (Coroutine is suspended but the thread is free)
-        println("Fake work ends: ${Thread.currentThread().name}");
-        "Hello World"// return value
+    val job: Job = launch {
+        for (i in 0..500) {
+            println("number $i")
+            delay(10)
+        }
     }
 
-    /*
-    * - Wait for "async" to finish its execution
-    *   after which the next statement will be executed
-    * - Use join() if you don't want to use the result of async,
-    *   Otherwise you can use await() (similar to future and promise in other programming language)
-    * - Remember that join() and await() are suspended function which only can be called
-    *   from other suspend function or coroutine. In this case is "runBlocking"
-    * */
-    val result: String = job.await()
-    println("Program result: $result")
+    delay(50) // set delay for cancellation
+    // job.cancel() // cancel the coroutine after 50 milliseconds
+    // job.join() // wait until the coroutine that is created by "launch" is finished or cancelled
+    // Instead of use job.cancel() and job.join() separately, we can use job.cancelAndJoin()
+    job.cancelAndJoin()
+
     println("Program ends: ${Thread.currentThread().name}")
-
-
 
 }
 
