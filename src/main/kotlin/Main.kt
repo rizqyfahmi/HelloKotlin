@@ -1,6 +1,9 @@
 import kotlinx.coroutines.*
 
 fun main(args: Array<String>) = runBlocking{
+    // This is not the correct way of using "runBlocking".
+    // We use it like this way because we want to show how cool are coroutine
+    // Generally "runBlocking" used for writing unit test to test suspending function
     println("Hello World!")
 
     // Try adding program arguments via Run/Debug configuration.
@@ -34,4 +37,9 @@ fun main(args: Array<String>) = runBlocking{
 
 suspend fun mySuspendFun(time: Long) {
     delay(time)
+}
+
+suspend fun myReturnSuspendedFun(): String {
+    mySuspendFun(1000)
+    return "Hello World";
 }
