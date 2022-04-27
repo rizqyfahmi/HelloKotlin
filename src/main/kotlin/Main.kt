@@ -25,7 +25,26 @@ fun main(args: Array<String>) = runBlocking{
         } catch (ex: CancellationException) {
             println("Exception caught safely")
         } finally { // just like any other try-catch, we can also add "finally" block
-            println("Close resources in finally")
+            /*
+            * - We cannot execute a suspending function from finally block because
+            *   the coroutine that runs in this block is already cancelled.
+            *   Executing a suspending function from finally block will throw
+            *   another CancellationException that makes the next statement in this finally block
+            *   not be executed. But in the rear case, if we really need to execute a suspending function
+            *   from finally block, then wrap all the code inside finally block within
+            *   "withContext(NonCancellable)" function.
+            *   ```
+            *   // Before:
+            *   delay(1000) // it makes the next statement not be executed
+            *   println("Close resources in finally")
+            *   ```
+            * */
+            // After
+            withContext(NonCancellable) {
+                delay(1000)
+                println("Close resources in finally")
+            }
+
         }
     }
 
