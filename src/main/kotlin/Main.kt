@@ -23,7 +23,7 @@ fun main(args: Array<String>) = runBlocking{
                 delay(5)
             }
         } catch (ex: CancellationException) {
-            println("Exception caught safely")
+            println("Exception caught safely: ${ex.message}")
         } finally { // just like any other try-catch, we can also add "finally" block
             /*
             * - We cannot execute a suspending function from finally block because
@@ -48,11 +48,13 @@ fun main(args: Array<String>) = runBlocking{
         }
     }
 
-    delay(100) // set delay for cancellation
-    // job.cancel() // cancel the coroutine after 50 milliseconds
-    // job.join() // wait until the coroutine that is created by "launch" is finished or cancelled
-    // Instead of use job.cancel() and job.join() separately, we can use job.cancelAndJoin()
-    job.cancelAndJoin()
+    delay(50) // set delay for cancellation
+    /*
+    * - it cancels the coroutine after 50 milliseconds
+    * - We can pass CancellationException instance within the constructor to set custom exception message
+    * */
+     job.cancel(CancellationException("My own crash message"))
+     job.join() // wait until the coroutine that is created by "launch" is finished or cancelled
 
     println("Program ends: ${Thread.currentThread().name}")
 
