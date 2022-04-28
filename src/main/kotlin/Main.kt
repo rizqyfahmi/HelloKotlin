@@ -1,70 +1,31 @@
 import kotlinx.coroutines.*
+import kotlin.system.measureTimeMillis
+import kotlin.time.measureTime
 
-fun main(args: Array<String>) = runBlocking{
-    // This is not the correct way of using "runBlocking".
-    // We use it like this way because we want to show how cool are coroutine
-    // Generally "runBlocking" used for writing unit test to test suspending function
-    println("Hello World!")
-
+fun main(args: Array<String>) = runBlocking{// creates a blocking corotine that executes in current thread (Main Thread)
     // Try adding program arguments via Run/Debug configuration.
     // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
     println("Program arguments: ${args.joinToString()}")
 
-    println("Program starts: ${Thread.currentThread().name}")
-    val job: Job = launch(Dispatchers.Default) {
-        try {
-            for (i in 0..500) {
-                println("number $i")
-                /*
-                * - Actually, cancellable suspending functions that belong to "Kotlinx.coroutines"
-                *   such as yield(), delay(), etc. they throw a CancellationException
-                *   on the coroutine cancellation
-                * */
-                delay(5)
-            }
-        } catch (ex: CancellationException) {
-            println("Exception caught safely: ${ex.message}")
-        } finally { // just like any other try-catch, we can also add "finally" block
-            /*
-            * - We cannot execute a suspending function from finally block because
-            *   the coroutine that runs in this block is already cancelled.
-            *   Executing a suspending function from finally block will throw
-            *   another CancellationException that makes the next statement in this finally block
-            *   not be executed. But in the rear case, if we really need to execute a suspending function
-            *   from finally block, then wrap all the code inside finally block within
-            *   "withContext(NonCancellable)" function.
-            *   ```
-            *   // Before:
-            *   delay(1000) // it makes the next statement not be executed
-            *   println("Close resources in finally")
-            *   ```
-            * */
-            // After
-            withContext(NonCancellable) {
-                delay(1000)
-                println("Close resources in finally")
-            }
+    println("Program starts: ${Thread.currentThread().name}") // Main Thread
 
-        }
+    val time = measureTimeMillis {
+        val messageOne = getMessageOne();
+        val messageTwo = getMessageTwo(); // It will be executed after getMessageOne()
+        println("The entire message is: $messageOne $messageTwo"); // It will be executed after getMessageTwo()
     }
 
-    delay(50) // set delay for cancellation
-    /*
-    * - it cancels the coroutine after 50 milliseconds
-    * - We can pass CancellationException instance within the constructor to set custom exception message
-    * */
-     job.cancel(CancellationException("My own crash message"))
-     job.join() // wait until the coroutine that is created by "launch" is finished or cancelled
-
-    println("Program ends: ${Thread.currentThread().name}")
+    println("Completed in $time ms");
+    println("Program ends: ${Thread.currentThread().name}") // Main Thread
 
 }
 
-suspend fun mySuspendFun(time: Long) {
-    delay(time)
+suspend fun getMessageOne(): String {
+    delay(1000); // pretends to do some work
+    return "Hello";
 }
 
-suspend fun myReturnSuspendedFun(): String {
-    mySuspendFun(1000)
-    return "Hello World";
+suspend fun getMessageTwo(): String {
+    delay(1000); // pretends to do some work
+    return "World";
 }
