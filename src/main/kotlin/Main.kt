@@ -10,9 +10,10 @@ fun main(args: Array<String>) = runBlocking{// creates a blocking corotine that 
     println("Program starts: ${Thread.currentThread().name}") // Main Thread
 
     val time = measureTimeMillis {
-        val messageOne = getMessageOne();
-        val messageTwo = getMessageTwo(); // It will be executed after getMessageOne()
-        println("The entire message is: $messageOne $messageTwo"); // It will be executed after getMessageTwo()
+        // Function getMessageOne() and getMessageTwo() will be executed concurrently. Means getMessageTwo() doesn't need to wait for getMessageOne() is executed
+        val messageOne: Deferred<String> = async { getMessageOne() }; // "async" in this line make the execution of getMessageOne() happens in the background thread
+        val messageTwo: Deferred<String> = async { getMessageTwo() } // "async" in this line make the execution of getMessageTwo() happens in the background thread
+        println("The entire message is: ${messageOne.await()} ${messageTwo.await()}"); // this statement (println) will wait for executing of getMessageOne() and getMessageTwo() are finished because we added "await()" in each message
     }
 
     println("Completed in $time ms");
